@@ -21,12 +21,6 @@ Hello! I'm **Manjot Singh**, a passionate software developer and AI enthusiast d
 - **Cloud Deployment:** Docker, Heroku  
 - **Data Analysis:** Pandas, NumPy  
 
-### Connect with Me
-- **LinkedIn:** [linkedin.com/in/manjot-singh](https://linkedin.com/in/manjot-singh)  
-- **GitHub:** [github.com/manjotsingh](https://github.com/manjotsingh)  
-- **Email:** [manjot.singh@example.com](mailto:manjot.singh@example.com)  
-- **Phone:** [+1-555-123-4567](tel:+15551234567)  
-
 ---
 
 ## Features
@@ -122,10 +116,12 @@ Below are some screenshots and GIFs showcasing the application interface and fea
 ## Author / Contact Information
 
 **Manjot Singh**  
-- LinkedIn: [linkedin.com/in/manjot-singh](https://linkedin.com/in/manjot-singh)  
-- GitHub: [github.com/manjotsingh](https://github.com/manjotsingh)  
-- Email: [manjot.singh@example.com](mailto:manjot.singh@example.com)  
-- Portfolio: [www.manjotsingh.dev](https://www.manjotsingh.dev)  
+- LinkedIn: [linkedin.com/in/manjot-singh2004](https://linkedin.com/in/manjot-singh2004)  
+- GitHub: [github.com/manjotsingh9864](https://github.com/manjotsingh9864)  
+- Email: [singhtmanjot@gmail.com](mailto:singhtmanjot@gmail.com)  
+- Phone: [+91 7087736640](tel:+917087736640)  
+
+- **Portfolio:** [https://manjotsingh9864.github.io/My-Portfolio-Website/](https://manjotsingh9864.github.io/My-Portfolio-Website/)  
 
 ---
 
@@ -136,7 +132,7 @@ See the [LICENSE](LICENSE) file for details.
 
 ---
 
-## Future Enhancements / Notes
+## Future Enhancements
 
 - Integration with popular job portals for automatic job description fetching.  
 - Support for additional resume formats (e.g., RTF, ODT).  
