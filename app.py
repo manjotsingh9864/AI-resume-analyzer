@@ -6,19 +6,31 @@ def set_sidebar_style():
     st.markdown(
         """
         <style>
-        /* Force sidebar buttons text color */
-        section[data-testid="stSidebar"] .stButton button {
-            color: white !important;
-            border: none !important;
-            border-radius: 8px !important;
-            transition: all 0.3s ease-in-out;
+        /* Premium dark interactive style for ONLY first 3 buttons */
+        section[data-testid="stSidebar"] .stButton:nth-of-type(-n+3) button {
+            background: linear-gradient(135deg, #0f172a, #1e293b) !important;
+            color: #e5e7eb !important;
+            border: 1px solid #334155 !important;
+            border-radius: 12px !important;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+            transition: all 0.3s ease;
         }
 
-        /* Glow/gradient effect for active button */
-        section[data-testid="stSidebar"] .stButton button:focus {
-            color: white !important;
-            background: linear-gradient(90deg, #00c6ff, #0072ff) !important;
-            box-shadow: 0 0 10px rgba(0, 198, 255, 0.7) !important;
+        /* Hover: subtle lift + glow */
+        section[data-testid="stSidebar"] .stButton:nth-of-type(-n+3) button:hover {
+            background: linear-gradient(135deg, #020617, #0f172a) !important;
+            color: #ffffff !important;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.55);
+            transform: translateY(-2px);
+        }
+
+        /* Active: solid focus (best UX) */
+        section[data-testid="stSidebar"] .stButton:nth-of-type(-n+3) button:focus {
+            background: #020617 !important;
+            color: #ffffff !important;
+            border: 1px solid #38bdf8 !important;
+            box-shadow: 0 0 14px rgba(56, 189, 248, 0.45);
         }
         </style>
         """,
@@ -148,11 +160,14 @@ class ResumeApp:
     #     # [rest of about page removed]
 
     def load_lottie_url(self, url: str):
-        """Load Lottie animation from URL"""
-        r = requests.get(url)
-        if r.status_code != 200:
+        """Load Lottie animation from URL safely with error handling"""
+        try:
+            response = requests.get(url, timeout=10)
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            print(f"⚠️ Failed to load Lottie animation from {url}: {e}")
             return None
-        return r.json()
 
     def apply_global_styles(self):
         st.markdown("""
@@ -890,7 +905,7 @@ class ResumeApp:
                 print(f"Full traceback: {traceback.format_exc()}")
                 st.error(f"❌ Error preparing resume data: {str(e)}")
         # Footer
-        st.markdown("<p style='text-align: center; color: gray; font-size: 0.8em;'>© Manjot Singh</p>", unsafe_allow_html=True)
+        st.markdown("<p style='text-align: center; color: gray; font-size: 0.8em;'>© Aastha</p>", unsafe_allow_html=True)
     
     
     def render_analyzer(self):
@@ -1214,7 +1229,7 @@ class ResumeApp:
         # Close the page container
         st.markdown('</div>', unsafe_allow_html=True)
         # Footer
-        st.markdown("<p style='text-align: center; color: gray; font-size: 0.8em;'>© Manjot Singh</p>", unsafe_allow_html=True)
+        st.markdown("<p style='text-align: center; color: gray; font-size: 0.8em;'>© Aastha</p>", unsafe_allow_html=True)
 
 
     def render_home(self):
@@ -1622,9 +1637,15 @@ class ResumeApp:
         feature_clicked = st.query_params.get("feature_card_click", [None])[0]
         if "feature_card_click" in st.session_state:
             feature_clicked = st.session_state.pop("feature_card_click")
-        if feature_clicked in ["🔍 RESUME ANALYZER", "📝 RESUME BUILDER", "🏠 HOME"]:
-            st.session_state.page = feature_clicked
-            st.rerun()
+        if feature_clicked:
+            mapping = {
+                "🔍 RESUME ANALYZER": "resume_analyzer",
+                "📝 RESUME BUILDER": "resume_builder",
+                "🏠 HOME": "home"
+            }
+            if feature_clicked in mapping:
+                st.session_state.page = mapping[feature_clicked]
+                st.rerun()
 
         # Footer
         st.markdown("<p style='text-align: center; color: gray; font-size: 0.8em;'>© Manjot Singh</p>", unsafe_allow_html=True)
@@ -1636,7 +1657,11 @@ class ResumeApp:
         
         # Admin login/logout in sidebar
         with st.sidebar:
-            st_lottie(self.load_lottie_url("https://assets5.lottiefiles.com/packages/lf20_xyadoh9h.json"), height=200, key="sidebar_animation")
+            lottie_animation = self.load_lottie_url("https://assets5.lottiefiles.com/packages/lf20_xyadoh9h.json")
+            if lottie_animation:
+                st_lottie(lottie_animation, height=200, key="sidebar_animation")
+            else:
+                st.info("⚙️ Animation failed to load. Please check your internet connection.")
             st.title("AI Powered Resume Analyzer")
             st.markdown("---")
             
