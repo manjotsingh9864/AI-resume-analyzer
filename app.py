@@ -1,6 +1,4 @@
 import streamlit as st
-
-# Sidebar button style injection
 def set_sidebar_style():
     import streamlit as st
     st.markdown(
@@ -37,7 +35,6 @@ def set_sidebar_style():
         unsafe_allow_html=True
     )
 
-# Section header utility for consistent, modern headers
 def section_header(title, subtitle=""):
     import streamlit as st
     st.markdown(
@@ -51,22 +48,17 @@ def section_header(title, subtitle=""):
         unsafe_allow_html=True
     )
 
-# Feature card function for clickable cards with icon, title, and description
 def feature_card(title, description, icon, target_page):
     import streamlit as st
-    # Icon at top
     st.markdown(
         f"<div style='text-align:center; font-size:30px; margin-bottom:10px;'><i class='{icon}'></i></div>",
         unsafe_allow_html=True
     )
-    # Make card clickable
     if st.button(title, use_container_width=True, key=title):
         st.session_state.page = target_page
         st.rerun()
-    # Description text
     st.caption(description)
 
-# Set page config at the very beginning
 st.set_page_config(
     page_title="AI Powered Resume Maker and Ranker",
     page_icon="🚀",
@@ -124,11 +116,9 @@ class ResumeApp:
                 }
             }
         
-        # Initialize navigation state
         if 'page' not in st.session_state:
             st.session_state.page = 'home'
             
-        # Initialize admin state
         if 'is_admin' not in st.session_state:
             st.session_state.is_admin = False
         
@@ -136,28 +126,11 @@ class ResumeApp:
             "🏠 HOME": self.render_home,
             "🔍 RESUME ANALYZER": self.render_analyzer,
             "📝 RESUME BUILDER": self.render_builder,
-            # "ℹ️ ABOUT": self.render_about,  # About page removed
         }
 
         self.job_roles = JOB_ROLES
-        # Initialize analyzer and builder
         self.analyzer = ResumeAnalyzer()
         self.builder = ResumeBuilder()
-    # def render_about(self):
-    #     section_header("About",
-    #                    "Learn more about this project and its creator.")
-    #
-    #     st.write("""
-    #     **AI Powered Resume Analyzer** is designed to help job seekers 
-    #     build professional resumes and get instant AI-powered feedback.
-    #
-    #     - Analyze your resume for strengths and weaknesses  
-    #     - Build ATS-friendly resumes easily  
-    #     - Created with ❤️ by **Manjot Singh**
-    #     """)
-    #
-    #     st.markdown("<p style='text-align: center; color: gray; font-size: 0.8em;'>© Amit Bangar</p>", unsafe_allow_html=True)
-    #     # [rest of about page removed]
 
     def load_lottie_url(self, url: str):
         """Load Lottie animation from URL safely with error handling"""
@@ -507,7 +480,6 @@ class ResumeApp:
         """Export resume data to Excel"""
         conn = get_database_connection()
         
-        # Get resume data with analysis
         query = """
             SELECT 
                 rd.name, rd.email, rd.phone, rd.linkedin, rd.github, rd.portfolio,
@@ -521,10 +493,8 @@ class ResumeApp:
         """
         
         try:
-            # Read data into DataFrame
             df = pd.read_sql_query(query, conn)
             
-            # Create Excel writer object
             output = io.BytesIO()
             with pd.ExcelWriter(output, engine='openpyxl') as writer:
                 df.to_excel(writer, index=False, sheet_name='Resume Data')
@@ -558,20 +528,17 @@ class ResumeApp:
         
         if uploaded_file is not None:
             try:
-                # Extract text from resume
                 if uploaded_file.type == "application/pdf":
                     resume_text = extract_text_from_pdf(uploaded_file)
                 else:
                     resume_text = extract_text_from_docx(uploaded_file)
                 
-                # Store resume data
                 st.session_state.resume_data = {
                     'filename': uploaded_file.name,
                     'content': resume_text,
                     'upload_time': datetime.now().isoformat()
                 }
                 
-                # Analyze resume
                 analytics = self.analyze_resume(resume_text)
                 
                 return True
@@ -584,42 +551,34 @@ class ResumeApp:
         section_header("Resume Builder",
                        "Create ATS-friendly professional resumes with ease.")
         
-        # Template selection
         template_options = ["Modern", "Professional", "Minimal", "Creative"]
         selected_template = st.selectbox("Select Resume Template", template_options)
         st.success(f"🎨 Currently using: {selected_template} Template")
 
-        # Personal Information
         st.subheader("Personal Information")
         
         col1, col2 = st.columns(2)
         with col1:
-            # Get existing values from session state
             existing_name = st.session_state.form_data['personal_info']['full_name']
             existing_email = st.session_state.form_data['personal_info']['email']
             existing_phone = st.session_state.form_data['personal_info']['phone']
             
-            # Input fields with existing values
             full_name = st.text_input("Full Name", value=existing_name)
             email = st.text_input("Email", value=existing_email, key="email_input")
             phone = st.text_input("Phone", value=existing_phone)
 
-            # Immediately update session state after email input
             if 'email_input' in st.session_state:
                 st.session_state.form_data['personal_info']['email'] = st.session_state.email_input
         
         with col2:
-            # Get existing values from session state
             existing_location = st.session_state.form_data['personal_info']['location']
             existing_linkedin = st.session_state.form_data['personal_info']['linkedin']
             existing_portfolio = st.session_state.form_data['personal_info']['portfolio']
             
-            # Input fields with existing values
             location = st.text_input("Location", value=existing_location)
             linkedin = st.text_input("LinkedIn URL", value=existing_linkedin)
             portfolio = st.text_input("Portfolio Website", value=existing_portfolio)
 
-        # Update personal info in session state
         st.session_state.form_data['personal_info'] = {
             'full_name': full_name,
             'email': email,
@@ -629,12 +588,10 @@ class ResumeApp:
             'portfolio': portfolio
         }
 
-        # Professional Summary
         st.subheader("Professional Summary")
         summary = st.text_area("Professional Summary", value=st.session_state.form_data.get('summary', ''), height=150,
                              help="Write a brief summary highlighting your key skills and experience")
         
-        # Experience Section
         st.subheader("Work Experience")
         if 'experiences' not in st.session_state.form_data:
             st.session_state.form_data['experiences'] = []
@@ -664,7 +621,6 @@ class ResumeApp:
                                                 value=exp.get('description', ''),
                                                 help="Brief overview of your role and impact")
                 
-                # Responsibilities
                 st.markdown("##### Key Responsibilities")
                 resp_text = st.text_area("Enter responsibilities (one per line)", 
                                        key=f"resp_{idx}",
@@ -673,7 +629,6 @@ class ResumeApp:
                                        help="List your main responsibilities, one per line")
                 exp['responsibilities'] = [r.strip() for r in resp_text.split('\n') if r.strip()]
                 
-                # Achievements
                 st.markdown("##### Key Achievements")
                 achv_text = st.text_area("Enter achievements (one per line)", 
                                        key=f"achv_{idx}",
@@ -686,7 +641,6 @@ class ResumeApp:
                     st.session_state.form_data['experiences'].pop(idx)
                     st.rerun()
         
-        # Projects Section
         st.subheader("Projects")
         if 'projects' not in st.session_state.form_data:
             st.session_state.form_data['projects'] = []
@@ -712,7 +666,6 @@ class ResumeApp:
                                                  value=proj.get('description', ''),
                                                  help="Brief overview of the project and its goals")
                 
-                # Project Responsibilities
                 st.markdown("##### Key Responsibilities")
                 proj_resp_text = st.text_area("Enter responsibilities (one per line)", 
                                             key=f"proj_resp_{idx}",
@@ -721,7 +674,6 @@ class ResumeApp:
                                             help="List your main responsibilities in the project")
                 proj['responsibilities'] = [r.strip() for r in proj_resp_text.split('\n') if r.strip()]
                 
-                # Project Achievements
                 st.markdown("##### Key Achievements")
                 proj_achv_text = st.text_area("Enter achievements (one per line)", 
                                             key=f"proj_achv_{idx}",
@@ -738,7 +690,6 @@ class ResumeApp:
                     st.session_state.form_data['projects'].pop(idx)
                     st.rerun()
         
-        # Education Section
         st.subheader("Education")
         if 'education' not in st.session_state.form_data:
             st.session_state.form_data['education'] = []
@@ -766,7 +717,6 @@ class ResumeApp:
                 
                 edu['gpa'] = st.text_input("GPA (optional)", key=f"gpa_{idx}", value=edu.get('gpa', ''))
                 
-                # Educational Achievements
                 st.markdown("##### Achievements & Activities")
                 edu_achv_text = st.text_area("Enter achievements (one per line)", 
                                            key=f"edu_achv_{idx}",
@@ -779,7 +729,6 @@ class ResumeApp:
                     st.session_state.form_data['education'].pop(idx)
                     st.rerun()
         
-        # Skills Section
         st.subheader("Skills")
         if 'skills_categories' not in st.session_state.form_data:
             st.session_state.form_data['skills_categories'] = {
@@ -816,25 +765,21 @@ class ResumeApp:
                                help="Development tools, software, platforms, etc.")
             st.session_state.form_data['skills_categories']['tools'] = [t.strip() for t in tools.split('\n') if t.strip()]
         
-        # Update form data in session state
         st.session_state.form_data.update({
             'summary': summary
         })
         
-        # Generate Resume button
         if st.button("Generate Resume 📄", type="primary"):
             print("Validating form data...")
             print(f"Session state form data: {st.session_state.form_data}")
             print(f"Email input value: {st.session_state.get('email_input', '')}")
             
-            # Get the current values from form
             current_name = st.session_state.form_data['personal_info']['full_name'].strip()
             current_email = st.session_state.email_input if 'email_input' in st.session_state else ''
             
             print(f"Current name: {current_name}")
             print(f"Current email: {current_email}")
             
-            # Validate required fields
             if not current_name:
                 st.error("⚠️ Please enter your full name.")
                 return
@@ -843,12 +788,10 @@ class ResumeApp:
                 st.error("⚠️ Please enter your email address.")
                 return
                 
-            # Update email in form data one final time
             st.session_state.form_data['personal_info']['email'] = current_email
             
             try:
                 print("Preparing resume data...")
-                # Prepare resume data with current form values
                 resume_data = {
                     "personal_info": st.session_state.form_data['personal_info'],
                     "summary": st.session_state.form_data.get('summary', '').strip(),
@@ -867,14 +810,11 @@ class ResumeApp:
                 print(f"Resume data prepared: {resume_data}")
                 
                 try:
-                    # Generate resume
                     resume_buffer = self.builder.generate_resume(resume_data)
                     if resume_buffer:
                         try:
-                            # Save resume data to database
                             save_resume_data(resume_data)
                             
-                            # Offer the resume for download
                             st.success("✅ Resume generated successfully!")
                             st.download_button(
                                 label="Download Resume 📥",
@@ -884,7 +824,6 @@ class ResumeApp:
                             )
                         except Exception as db_error:
                             print(f"Warning: Failed to save to database: {str(db_error)}")
-                            # Still allow download even if database save fails
                             st.warning("⚠️ Resume generated but couldn't be saved to database")
                             st.download_button(
                                 label="Download Resume 📥",
@@ -904,7 +843,6 @@ class ResumeApp:
                 print(f"Error preparing resume data: {str(e)}")
                 print(f"Full traceback: {traceback.format_exc()}")
                 st.error(f"❌ Error preparing resume data: {str(e)}")
-        # Footer
         st.markdown("<p style='text-align: center; color: gray; font-size: 0.8em;'>© Aastha</p>", unsafe_allow_html=True)
     
     
@@ -912,11 +850,9 @@ class ResumeApp:
         """Render the resume analyzer page"""
         apply_modern_styles()
         
-        # Page Header
         section_header("Resume Analyzer",
                        "Upload your resume and get instant feedback on skills and improvements.")
         
-        # Job Role Selection
         categories = list(self.job_roles.keys())
         selected_category = st.selectbox("Job Category", categories)
         
@@ -925,7 +861,6 @@ class ResumeApp:
         
         role_info = self.job_roles[selected_category][selected_role]
         
-        # Display role information
         st.markdown(f"""
         <div style='background-color: #1e1e1e; padding: 20px; border-radius: 10px; margin: 10px 0;'>
             <h3>{selected_role}</h3>
@@ -935,7 +870,6 @@ class ResumeApp:
         </div>
         """, unsafe_allow_html=True)
         
-        # File Upload
         uploaded_file = st.file_uploader("Upload your resume", type=['pdf', 'docx'])
         
         st.markdown(
@@ -947,7 +881,6 @@ class ResumeApp:
         )
         if uploaded_file:
             with st.spinner("Analyzing your document..."):
-                # Get file content
                 text = ""
                 try:
                     if uploaded_file.type == "application/pdf":
@@ -961,10 +894,8 @@ class ResumeApp:
                     return
 
                 
-                # Analyze the document
                 analysis = self.analyzer.analyze_resume({'raw_text': text}, role_info)
                 
-                # Save resume data to database
                 resume_data = {
                     'personal_info': {
                         'name': analysis.get('name', ''),
@@ -984,11 +915,9 @@ class ResumeApp:
                     'template': ''
                 }
                 
-                # Save to database
                 try:
                     resume_id = save_resume_data(resume_data)
                     
-                    # Save analysis data
                     analysis_data = {
                         'resume_id': resume_id,
                         'ats_score': analysis['ats_score'],
@@ -1004,16 +933,13 @@ class ResumeApp:
                     st.error(f"Error saving to database: {str(e)}")
                     print(f"Database error: {e}")
                 
-                # Show results based on document type
                 if analysis.get('document_type') != 'resume':
                     st.error(f"⚠️ This appears to be a {analysis['document_type']} document, not a resume!")
                     st.warning("Please upload a proper resume for ATS analysis.")
                     return                
-                # Display results in a modern card layout
                 col1, col2 = st.columns(2)
                 
                 with col1:
-                    # ATS Score Card with circular progress
                     st.markdown("""
                     <div class="feature-card">
                         <h2>ATS Score</h2>
@@ -1064,9 +990,6 @@ class ResumeApp:
                     
                     st.markdown("</div>", unsafe_allow_html=True)
                                         
-                    # self.display_analysis_results(analysis_results)
-
-                    # Skills Match Card
                     st.markdown("""
                     <div class="feature-card">
                         <h2>Skills Match</h2>
@@ -1082,7 +1005,6 @@ class ResumeApp:
                     st.markdown("</div>", unsafe_allow_html=True)
                 
                 with col2:
-                    # Format Score Card
                     st.markdown("""
                     <div class="feature-card">
                         <h2>Format Analysis</h2>
@@ -1093,7 +1015,6 @@ class ResumeApp:
                     
                     st.markdown("</div>", unsafe_allow_html=True)
                     
-                    # Suggestions Card with improved UI
                     st.markdown("""
                     <div class="feature-card">
                         <h2>📋 Resume Improvement Suggestions</h2>
@@ -1179,13 +1100,11 @@ class ResumeApp:
                     <h2>📚 Recommended Courses</h2>
                 """, unsafe_allow_html=True)
                 
-                # Get courses based on role and category
                 courses = get_courses_for_role(selected_role)
                 if not courses:
                     category = get_category_for_role(selected_role)
                     courses = COURSES_BY_CATEGORY.get(category, {}).get(selected_role, [])
                 
-                # Display courses in a grid
                 cols = st.columns(2)
                 for i, course in enumerate(courses[:6]):  # Show top 6 courses
                     with cols[i % 2]:
@@ -1198,7 +1117,6 @@ class ResumeApp:
                 
                 st.markdown("</div>", unsafe_allow_html=True)
                 
-                # Learning Resources
                 st.markdown("""
                 <div class="feature-card">
                     <h2>📺 Helpful Videos</h2>
@@ -1207,7 +1125,6 @@ class ResumeApp:
                 tab1, tab2 = st.tabs(["Resume Tips", "Interview Tips"])
                 
                 with tab1:
-                    # Resume Videos
                     for category, videos in RESUME_VIDEOS.items():
                         st.subheader(category)
                         cols = st.columns(2)
@@ -1216,7 +1133,6 @@ class ResumeApp:
                                 st.video(video[1])
                 
                 with tab2:
-                    # Interview Videos
                     for category, videos in INTERVIEW_VIDEOS.items():
                         st.subheader(category)
                         cols = st.columns(2)
@@ -1226,9 +1142,7 @@ class ResumeApp:
                 
                 st.markdown("</div>", unsafe_allow_html=True)
                 
-        # Close the page container
         st.markdown('</div>', unsafe_allow_html=True)
-        # Footer
         st.markdown("<p style='text-align: center; color: gray; font-size: 0.8em;'>© Aastha</p>", unsafe_allow_html=True)
 
 
@@ -1240,7 +1154,6 @@ class ResumeApp:
             "Transform your career with AI-powered resume analysis and professional resume building."
         )
 
-        # Add a left-aligned, larger, underlined line of text before the feature cards
         st.markdown(
             """
             <div style="
@@ -1260,7 +1173,6 @@ class ResumeApp:
             unsafe_allow_html=True
         )
 
-        # Modern feature cards with gradient backgrounds, icons, and hover effects, plus additional sections
         st.markdown(
             """
             <style>
@@ -1512,7 +1424,6 @@ class ResumeApp:
             unsafe_allow_html=True
         )
 
-        # Feature cards as HTML for modern look (Home card removed)
         st.markdown(
             """
             <div class="modern-feature-cards">
@@ -1545,7 +1456,6 @@ class ResumeApp:
             unsafe_allow_html=True
         )
 
-        # --- Why Choose This App Section ---
         st.markdown(
             """
             <div class="why-choose-section">
@@ -1569,7 +1479,6 @@ class ResumeApp:
             unsafe_allow_html=True
         )
 
-        # --- Testimonials Section ---
         st.markdown(
             """
             <div class="testimonials-section">
@@ -1595,7 +1504,6 @@ class ResumeApp:
             unsafe_allow_html=True
         )
 
-        # --- Separation Line ---
         st.markdown(
             """
             <hr class="section-separator-hr" />
@@ -1603,7 +1511,6 @@ class ResumeApp:
             unsafe_allow_html=True
         )
 
-        # --- Project Description Section ---
         st.markdown(
             """
             <div class="project-desc-section">
@@ -1617,7 +1524,6 @@ class ResumeApp:
             unsafe_allow_html=True
         )
 
-        # --- Call-To-Action Section ---
         st.markdown(
             """
             <div class="cta-section">
@@ -1633,7 +1539,6 @@ class ResumeApp:
             unsafe_allow_html=True
         )
 
-        # Listen for card clicks using st.query_params or session state
         feature_clicked = st.query_params.get("feature_card_click", [None])[0]
         if "feature_card_click" in st.session_state:
             feature_clicked = st.session_state.pop("feature_card_click")
@@ -1647,7 +1552,6 @@ class ResumeApp:
                 st.session_state.page = mapping[feature_clicked]
                 st.rerun()
 
-        # Footer
         st.markdown("<p style='text-align: center; color: gray; font-size: 0.8em;'>© Manjot Singh</p>", unsafe_allow_html=True)
 
     def main(self):
@@ -1655,7 +1559,6 @@ class ResumeApp:
         set_sidebar_style()
         self.apply_global_styles()
         
-        # Admin login/logout in sidebar
         with st.sidebar:
             lottie_animation = self.load_lottie_url("https://assets5.lottiefiles.com/packages/lf20_xyadoh9h.json")
             if lottie_animation:
@@ -1665,17 +1568,14 @@ class ResumeApp:
             st.title("AI Powered Resume Analyzer")
             st.markdown("---")
             
-            # Navigation buttons
             for page_name in self.pages.keys():
                 if st.button(page_name, use_container_width=True):
                     cleaned_name = page_name.lower().replace(" ", "_").replace("🏠", "").replace("🔍", "").replace("📝", "").strip()
                     st.session_state.page = cleaned_name
                     st.rerun()
 
-            # Add spacing before admin login
             st.markdown("<br>", unsafe_allow_html=True)
             
-            # Admin Login/Logout section at bottom
             if st.session_state.get('is_admin', False):
                 st.success(f"Logged in as: {st.session_state.get('current_admin_email')}")
                 if st.button("Logout", key="logout_button"):
@@ -1688,24 +1588,19 @@ class ResumeApp:
                     except Exception as e:
                         st.error(f"Error during logout: {str(e)}")
         
-        # Force home page on first load
         if 'initial_load' not in st.session_state:
             st.session_state.initial_load = True
             st.session_state.page = 'home'
             st.rerun()
         
-        # Get current page and render it
         current_page = st.session_state.get('page', 'home')
         
-        # Create a mapping of cleaned page names to original names
         page_mapping = {name.lower().replace(" ", "_").replace("🏠", "").replace("🔍", "").replace("📝", "").strip(): name 
                        for name in self.pages.keys()}
         
-        # Render the appropriate page
         if current_page in page_mapping:
             self.pages[page_mapping[current_page]]()
         else:
-            # Default to home page if invalid page
             self.render_home()
     
 if __name__ == "__main__":
